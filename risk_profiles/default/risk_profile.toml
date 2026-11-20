@@ -1,0 +1,22 @@
+# Risk profile: what an agent may do without asking. The profile's name is
+# its folder's name. `[risk_profile]` becomes `[risk_profiles.<name>]` in
+# ZeroClaw's config.toml. Agents select it with `risk_profile = "<name>"`.
+# Values below are ZeroClaw's defaults.
+
+[risk_profile]
+# "supervised": risky actions need approval. Other levels relax or tighten that.
+level = "supervised"
+require_approval_for_medium_risk = true
+block_high_risk_commands = true
+# Restrict file access to the agent's workspace.
+workspace_only = true
+# Shell commands the agent may run.
+allowed_commands = ["git", "npm", "cargo", "ls", "cat", "grep", "find", "echo", "pwd", "wc", "head", "tail", "date", "df", "du", "uname", "uptime", "hostname", "python", "python3", "pip", "node", "free"]
+# Tools that run without asking.
+auto_approve = ["file_read", "memory_recall", "web_search_tool", "web_fetch", "calculator", "glob_search", "content_search", "image_info", "weather", "tool_search", "browser_open"]
+# Paths the agent may never touch.
+forbidden_paths = ["/etc", "/root", "/home", "/usr", "/bin", "/sbin", "/lib", "/opt", "/boot", "/dev", "/proc", "/sys", "/var", "/tmp", "~/.ssh", "~/.gnupg", "~/.aws", "~/.config"]
+
+[risk_profile.delegation_policy]
+# Whether the agent may delegate to other agents.
+mode = "forbidden"

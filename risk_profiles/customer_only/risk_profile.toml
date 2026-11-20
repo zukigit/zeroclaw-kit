@@ -1,0 +1,67 @@
+# Risk profile for customer-facing agents of the class-admin school.
+# `[risk_profile]` becomes `[risk_profiles.customer_only]` in config.toml.
+#
+# The agent may use ONLY the public class-admin MCP tools. No shell, no
+# files, no web, no memory tools, no delegation.
+#
+# How the lock works (ZeroClaw RiskProfileConfig):
+# - A non-empty allowed_tools is a closed set: built-in tools not listed
+#   here are unavailable. MCP tools (<server>__<tool>) from the servers the
+#   agent's mcp_bundles grant are admitted automatically, so the bundle
+#   decides which MCP tools exist; this list just names them explicitly.
+# - excluded_tools blocks names even if they would be admitted. The admin
+#   tools are listed as a second line of defence: the agent's server is the
+#   public /mcp endpoint, which never offers them anyway.
+
+[risk_profile]
+level = "supervised"
+require_approval_for_medium_risk = true
+block_high_risk_commands = true
+workspace_only = true
+# No shell commands at all.
+allowed_commands = []
+
+# The only tools this agent may call (server "class_admin_public").
+allowed_tools = [
+  "class_admin_public__list_courses",
+  "class_admin_public__get_course",
+  "class_admin_public__list_upcoming_classes",
+  "class_admin_public__get_class",
+  "class_admin_public__book_class",
+  "class_admin_public__get_booking",
+  "class_admin_public__cancel_booking",
+  "class_admin_public__whoami",
+]
+
+# Read-only lookups run without asking. book_class and cancel_booking are
+# left out on purpose, so ZeroClaw asks before changing a booking.
+auto_approve = [
+  "class_admin_public__list_courses",
+  "class_admin_public__get_course",
+  "class_admin_public__list_upcoming_classes",
+  "class_admin_public__get_class",
+  "class_admin_public__get_booking",
+  "class_admin_public__whoami",
+]
+
+# Admin tools, blocked even if a token is ever added to the server.
+excluded_tools = [
+  "class_admin_public__create_course",
+  "class_admin_public__update_course",
+  "class_admin_public__list_all_classes",
+  "class_admin_public__create_class",
+  "class_admin_public__update_class",
+  "class_admin_public__set_class_schedule",
+  "class_admin_public__set_class_fee",
+  "class_admin_public__cancel_class",
+  "class_admin_public__delete_class",
+  "class_admin_public__list_bookings",
+  "class_admin_public__approve_booking",
+  "class_admin_public__reject_booking",
+  "class_admin_public__admin_cancel_booking",
+]
+
+forbidden_paths = ["/etc", "/root", "/home", "/usr", "/bin", "/sbin", "/lib", "/opt", "/boot", "/dev", "/proc", "/sys", "/var", "/tmp", "~/.ssh", "~/.gnupg", "~/.aws", "~/.config"]
+
+[risk_profile.delegation_policy]
+mode = "forbidden"

@@ -1,0 +1,29 @@
+# Model provider. The folder name is `<type>.<alias>`:
+#   <type>   ZeroClaw provider slot: openai, anthropic, openrouter, opencode,
+#            deepseek, groq, gemini, ollama, azure, bedrock, custom, ...
+#            (full list: https://docs.zeroclawlabs.ai/master/en/providers/catalog.html)
+#   <alias>  any name you choose: lowercase letters, digits, single underscores
+# `[provider]` becomes `[providers.models.<type>.<alias>]` in ZeroClaw's
+# config.toml. Agents select it with `model_provider = "<type>.<alias>"`.
+#
+# NEVER put api_key here. Supply it at runtime: add this line to the
+# zeroclaw service's environment in docker-compose.yml
+#   - ZEROCLAW_providers__models__opencode__deepseek_flash__api_key=${OPENCODE_API_KEY:?set OPENCODE_API_KEY in .env}
+# and put OPENCODE_API_KEY=<key> in .env (gitignored). Only add the line once
+# this provider is installed: ZeroClaw aborts on env vars for unknown
+# config paths. Or enter the key in the dashboard instead.
+#
+# Any provider field can go under [provider]. Common ones:
+#   uri = "http://127.0.0.1:11434"   # endpoint override; required for `custom`,
+#                                    # and for local servers not on the default port
+#   temperature = 0.7
+#   max_tokens = 4096
+#   timeout_secs = 120
+#   fallback = ["openrouter.backup"] # other <type>.<alias> to try on failure
+# Type-specific fields, e.g. azure: resource, deployment, api_version;
+# moonshot/zai/glm: endpoint = "cn" | "global"; openai subscription:
+# requires_openai_auth = true. See the catalog for each type's fields.
+# Maps go in sub-tables, e.g. [provider.extra_headers].
+
+[provider]
+model = "deepseek-v4.1-flash"

@@ -1,0 +1,39 @@
+# Customer-facing assistant for the class-admin school.
+# `[agent]` becomes `[agents.restricted_agent]` in ZeroClaw's config.toml.
+#
+# Tools: only the public class-admin MCP tools, enforced by the
+# customer_only risk profile. Topic: only the school's courses, classes and
+# the customer's own bookings, set by workspace/SOUL.md and AGENTS.md.
+#
+# Needs in config.toml (the kit has no MCP items; add them in the dashboard
+# or paste them into config.toml):
+#   [[mcp.servers]]  name = "class_admin_public", transport = "http",
+#                    url = "http://127.0.0.1:8080/mcp", NO Authorization header
+#   [mcp_bundles.class_admin_public]  servers = ["class_admin_public"]
+# No API keys here: see README.md.
+
+[agent]
+acp_enable_mcp = false
+# Never hand work to other agents (they may have more tools).
+delegate_same_risk_profile = false
+enabled = true
+model_provider = "opencode.deepseek_flash"
+risk_profile = "customer_only"
+runtime_profile = "default"
+mcp_bundles = ["class_admin_public"]
+
+[agent.a2a]
+published = false
+
+[agent.identity]
+format = "openclaw"
+
+[agent.memory]
+backend = "sqlite"
+
+[agent.precheck]
+enabled = true
+timeout_secs = 5
+
+[agent.workspace]
+unrestricted_filesystem = false

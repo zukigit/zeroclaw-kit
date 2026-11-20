@@ -1,0 +1,63 @@
+# Example ZeroClaw service. Copy into your project's docker-compose.yml
+# Point the volume at your ZeroClaw data dir, and pass the same dir to
+# install.sh --data.
+#
+#   docker compose up -d
+#   Gateway: http://127.0.0.1:42617
+#
+# Uses host networking, so ZeroClaw can reach services on the host directly
+# (e.g. an MCP server on http://127.0.0.1:<port>/mcp). Linux Docker/Podman only.
+
+services:
+  zeroclaw:
+    # Debian-based variant (bash, git, curl available to the agent)
+    image: ghcr.io/zeroclaw-labs/zeroclaw:debian
+    container_name: zeroclaw
+    restart: unless-stopped
+    network_mode: host
+    # Run as the host user so files in ./zeroclaw-data stay editable on the
+    # host (the image defaults to 65534). Override in .env if your ids differ.
+    user: "${ZEROCLAW_UID:-1000}:${ZEROCLAW_GID:-1000}"
+    # Rootless Podman: map the host user to the same uid inside the
+    # container; without this uid 1000 inside is a sub-uid on the host and
+    # cannot write ./zeroclaw-data. (Podman-only; remove for Docker.)
+    userns_mode: keep-id
+
+    environment:
+      # Config overrides use ZEROCLAW_<dotted__path>=<value>.
+
+      # Provider API keys: one line per provider in config.toml
+      # ([providers.models.<type>.<alias>]); copy it from the comment in
+      # providers/<type>.<alias>/provider.toml. The key goes in .env as
+      # <TYPE>_API_KEY (shared by that type's aliases). `:?` stops
+      # compose when it's unset instead of overriding a stored key with "".
+      - ZEROCLAW_providers__models__opencode__deepseek_flash__api_key=${OPENCODE_API_KEY:?set OPENCODE_API_KEY in .env}
+
+      # With host networking the gateway binds straight onto the host.
+      # Keep it on loopback; switch to 0.0.0.0 (and set allow_public_bind=true,
+      # with pairing enabled) only if other machines must reach it.
+      - ZEROCLAW_gateway__host=127.0.0.1
+      - ZEROCLAW_gateway__port=${ZEROCLAW_GATEWAY_PORT:-42617}
+      # The bind mount hides the image's seeded config, so point the gateway
+      # at the bundled dashboard explicitly.
+      - ZEROCLAW_gateway__web_dist_dir=/usr/share/zeroclawlabs/web/dist
+
+    volumes:
+      # Bind-mounted from the host: config (.zeroclaw/config.toml), data,
+      # agent workspaces. HOME=/zeroclaw-data inside the container.
+      # Starts empty; ZeroClaw writes a default config on first run.
+      # :Z relabels the folder for SELinux (Fedora), otherwise access is denied.
+      - ./zeroclaw-data:/zeroclaw-data:Z
+
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 512M
+
+    healthcheck:
+      test: ["CMD", "zeroclaw", "status", "--format=exit-code"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

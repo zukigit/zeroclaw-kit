@@ -1,0 +1,20 @@
+schema_version = 4
+
+# Shared ZeroClaw settings: tools, gateway.
+# install.sh uses this only when the --data dir has no
+# .zeroclaw/config.toml yet.
+#
+# No credentials here. Provider API keys are passed at runtime via
+# docker-compose.yml + .env; see the comment in each provider.toml.
+
+[tools]
+optional = ["*"]
+
+# Risk and runtime profiles live in the kit (risk_profiles/, runtime_profiles/)
+# and are added by install.sh.
+
+# Model providers live in the kit (providers/) and are added by install.sh.
+
+[gateway]
+
+[agents]

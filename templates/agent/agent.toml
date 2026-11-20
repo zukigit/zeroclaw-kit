@@ -1,0 +1,31 @@
+# Agent settings. The agent's name is its folder name.
+# `[agent]` becomes `[agents.<folder-name>]` in ZeroClaw's config.toml.
+#
+# model_provider, risk_profile and runtime_profile name items in the kit
+# (providers/, risk_profiles/, runtime_profiles/) or already in the config;
+# install.sh adds missing ones from the kit.
+# No API keys here: see README.md.
+
+[agent]
+acp_enable_mcp = false
+delegate_same_risk_profile = true
+enabled = true
+model_provider = "opencode.deepseek_flash"
+risk_profile = "default"
+runtime_profile = "default"
+
+[agent.a2a]
+published = false
+
+[agent.identity]
+format = "openclaw"
+
+[agent.memory]
+backend = "sqlite"
+
+[agent.precheck]
+enabled = true
+timeout_secs = 5
+
+[agent.workspace]
+unrestricted_filesystem = false
